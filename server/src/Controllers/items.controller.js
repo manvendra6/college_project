@@ -7,8 +7,15 @@ import { uploadFile } from "../utility/cloudinary.js";
  export const creatItem = async (req, res) => {
   try {
     console.log( "initial data",req.body)
-    const { name, category, price, foodType } = req.body;
-     let shop = await Shop.findOne({ owner: req.userId });
+    const { name, category, price, foodType, shopId } = req.body;
+    
+    let shop;
+    if (shopId) {
+      shop = await Shop.findById(shopId);
+    } else {
+      shop = await Shop.findOne({ owner: req.userId });
+    }
+
     if (!shop) {
       return res.status(400).json({ message: "Shop not found" });
     }
@@ -119,3 +126,24 @@ import { uploadFile } from "../utility/cloudinary.js";
     return res.status(500).json({message:"delete item  error",error})
   }
  }
+
+ export const searchItems = async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) {
+      return res.status(400).json({ message: "Search query is required" });
+    }
+
+    const items = await Item.find({
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        { category: { $regex: query, $options: "i" } },
+      ],
+    }).populate("shop", "name city address image");
+
+    return res.status(200).json({ items });
+  } catch (error) {
+    console.error("Search items error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs"
 import userModel from "../Models/user.model.js"
 import gentoken from "../utility/webtoken.js";
 import { sendOtpEmail } from "../utility/nodemailer.js";
+import mongoose from "mongoose";
  
  export const singUp= async(req,res)=>{
  try {
@@ -62,7 +63,7 @@ import { sendOtpEmail } from "../utility/nodemailer.js";
     if(!existingUser){
       return res.status(400).json({message: "User not found, please sign up"})
     }
-     const isMatch = bcrypt.compare(password, existingUser.password);
+     const isMatch = await bcrypt.compare(password, existingUser.password);
      if(!isMatch){
       return res.status(400).json({message:"Invalid credentials"})
      }
@@ -206,5 +207,23 @@ export const googleAuth = async (req, res) => {
   } catch (error) {
     console.error("Googleauth server error:", error);
     return res.status(500).json({ message: "Googleauth server error" });
+  }
+};
+
+export const getDeliveryBoys = async (req, res) => {
+  try {
+    // DEBUG: Searching for Sourabh specifically OR any delivery role
+    const deliveryBoys = await userModel.find({
+      $or: [
+        { fullName: { $regex: /Sourabh/i } },
+        { role: { $regex: /delivery/i } }
+      ]
+    }).select("fullName phone _id role");
+    
+    console.log(`Debug found: ${deliveryBoys.length} users matching search`);
+    return res.status(200).json({ deliveryBoys });
+  } catch (error) {
+    console.error("Get delivery boys error:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };

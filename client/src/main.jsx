@@ -6,12 +6,18 @@ import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './Redux/Store.jsx';
 
+import { ThemeProvider } from './ThemeContext.jsx';
+import { Toaster } from 'react-hot-toast';
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <ThemeProvider>
+        <BrowserRouter>
+          <Toaster position="top-center" reverseOrder={false} />
+          <App />
+        </BrowserRouter>
+      </ThemeProvider>
     </Provider>
   </StrictMode>
 );

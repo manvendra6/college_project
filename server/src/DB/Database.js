@@ -12,8 +12,7 @@ dotenv.config(
       try {
         const Connection= await mongoose.connect(process.env.MONGO_URL,{
           dbName:process.env.MONGO_NAME,
-          // useNewUrlParser: true,
-          // useUnifiedTopology: true,
+          
         });
         console.log( `db connection ${Connection.connection.host}`)
     

@@ -9,6 +9,7 @@ const shopItemSchema = new mongoose.Schema(
     },
     price: Number,
     quantity: Number,
+    name: String,
   },
   { timestamps: true }
 );
@@ -22,10 +23,19 @@ const shopOrderSchema = new mongoose.Schema(
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "user",
     },
     subtotal: Number,
     shopOrderItems: [shopItemSchema],
+    status: {
+      type: String,
+      enum: ["Pending", "Confirmed", "Preparing", "Out for Delivery", "Delivered", "Cancelled"],
+      default: "Pending",
+    },
+    deliveryBoy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+    },
   },
   { timestamps: true }
 );
@@ -35,11 +45,12 @@ const orderSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "user",
     },
     paymentMethod: {
       type: String,
-      enum: ["cod", "online"],
+      enum: ["cod"],
+      default: "cod",
       required: true,
     },
     deliveryAddress: {
@@ -52,6 +63,11 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
     shopOrders: [shopOrderSchema],
+    otp: String,
+    isPaid: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

@@ -14,7 +14,10 @@ export const uploadFile=async(file)=>{
     return res.secure_url
     
   } catch (error) {
-    fs.unlinkSync(file)
-    console.log("file upload error",error)
+    if (fs.existsSync(file)) {
+      fs.unlinkSync(file);
+    }
+    console.error("file upload error", error);
+    throw error;
   }
 }

@@ -5,8 +5,9 @@ import { FaUtensils } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
  
 import axios from 'axios';
-import { setmyshopData } from '../Redux/shopSlice';
+import { setmyshopData, setMyShops } from '../Redux/shopSlice';
 import { ClipLoader } from 'react-spinners';
+import { toast } from 'react-hot-toast';
 
 const CreateEditShop = () => {
   const { myshopData } = useSelector(state => state.owner);
@@ -50,6 +51,12 @@ const CreateEditShop = () => {
   const handleImage = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // 10MB limit (match Cloudinary)
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("File is too large! Maximum size is 10MB.");
+        e.target.value = ""; // Clear input
+        return;
+      }
       const imgUrl = URL.createObjectURL(file);
       setPreviewImage(imgUrl);
       setForm(prev => ({
@@ -89,10 +96,12 @@ const CreateEditShop = () => {
           headers: { "Content-Type": "multipart/form-data" }
         }
       );
-      console.log("Shop created/edited successfully", res.data);
+      console.log("Shop saved successfully", res.data);
 
-      dispatch(setmyshopData(res.data));  
+      dispatch(setmyshopData(res.data.shop));  
+      dispatch(setMyShops(res.data.shops));
       setloading(false);
+      toast.success(myshopData ? "Shop updated!" : "Shop created!");
       navigate("/");  
     } catch (error) {
       setloading(false);

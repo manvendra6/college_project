@@ -28,7 +28,7 @@ const shopschema= mongoose.Schema({
   },
  items: [
   {
-    type: mongoose.Schema.Types.ObjectId,
+    type:mongoose.Schema.Types.ObjectId,
     ref:"Item",
     required: true
   }

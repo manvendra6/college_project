@@ -33,50 +33,66 @@ const CartitemCard = ({ data }) => {
   };
 
   return (
-    <div className="w-full max-w-4xl bg-white shadow-md border rounded-xl p-3 flex items-center gap-4">
-      <img
-        src={data.image}
-        className="w-20 h-20 rounded-lg object-cover border"
-        alt={data.name}
-      />
+    <div className="w-full max-w-4xl bg-white dark:bg-gray-800 shadow-sm hover:shadow-md dark:shadow-none border border-gray-100 dark:border-gray-700 hover:border-orange-200 dark:hover:border-orange-500/50 rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-5 transition-all duration-300 group">
+      
+      {/* Image container with badge */}
+      <div className="relative shrink-0">
+        <img
+          src={data.image}
+          className="w-24 h-24 sm:w-20 sm:h-20 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform duration-300"
+          alt={data.name}
+        />
+        {data.foodType && (
+           <div className="absolute -top-2 -right-2 bg-white dark:bg-gray-700 p-1 rounded-full shadow-sm">
+             <div className={`w-3 h-3 rounded-full ${data.foodType.toLowerCase() === 'veg' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+           </div>
+        )}
+      </div>
 
-      <div className="flex justify-between w-full">
-        <div className="flex flex-col flex-grow gap-1">
-          <h1 className="text-lg font-semibold text-gray-800">
+      <div className="flex flex-col sm:flex-row justify-between w-full gap-4 sm:gap-0 items-center sm:items-stretch">
+        
+        {/* Item Info */}
+        <div className="flex flex-col flex-grow gap-1 text-center sm:text-left">
+          <h1 className="text-xl sm:text-lg font-bold text-gray-800 dark:text-gray-100 group-hover:text-orange-500 transition-colors">
             {data.name}
           </h1>
 
-          <p className="text-sm text-gray-500">
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
             ₹ {data.price} × {data.quantity}
           </p>
 
-          <p className="font-semibold">
+          <p className="font-extrabold text-lg text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">
             ₹ {data.price * data.quantity}
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleDecrease}
-            className="px-2 py-1 bg-gray-200 rounded"
-          >
-            <FaMinus />
-          </button>
+        {/* Actions */}
+        <div className="flex items-center gap-4 sm:gap-6">
+          
+          <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 px-2 py-1.5 rounded-xl shadow-inner">
+            <button
+              onClick={handleDecrease}
+              className="p-2 text-orange-500 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <FaMinus className="text-sm" />
+            </button>
 
-          <span className="font-semibold">{data.quantity}</span>
+            <span className="font-bold text-gray-800 dark:text-gray-100 w-6 text-center">{data.quantity}</span>
 
-          <button
-            onClick={handleIncrease}
-            className="px-2 py-1 bg-gray-200 rounded"
-          >
-            <FaPlus />
-          </button>
+            <button
+              onClick={handleIncrease}
+              className="p-2 text-orange-500 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <FaPlus className="text-sm" />
+            </button>
+          </div>
 
           <button
             onClick={handleDelete}
-            className="px-2 py-2 rounded-full bg-red-500"
+            className="p-3 rounded-xl bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-500 transition-all duration-300"
+            title="Remove item"
           >
-            <FaRegTrashAlt className="text-white" />
+            <FaRegTrashAlt className="text-lg" />
           </button>
         </div>
       </div>

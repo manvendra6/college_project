@@ -1,23 +1,33 @@
 import Shop from "../Models/shop.model.js";
 import { uploadFile } from "../utility/cloudinary.js";
+import mongoose from "mongoose";
 
  
  
 
 export const creatShop_edit = async (req, res) => {
   try {
-    const { name, city, state, address } = req.body;
+    const { _id, name, city, state, address } = req.body;
+    if (!req.userId) {
+      return res.status(401).json({ message: "Unauthorized: No user ID found" });
+    }
+    const ownerId = new mongoose.Types.ObjectId(req.userId);
 
-    let shop = await Shop.findOne({ owner: req.userId });
+    let shop;
+    if (_id) {
+      shop = await Shop.findById(_id);
+      if (shop && shop.owner.toString() !== req.userId) {
+        return res.status(403).json({ message: "Not authorized to edit this shop" });
+      }
+    }
 
     let img;
     if (req.file) {
-    
       img = await uploadFile(req.file.path);
     }
 
     if (!shop) {
-    
+      // Create new shop
       if (!img) {
         return res.status(400).json({ message: "File is required to create shop" });
       }
@@ -30,23 +40,25 @@ export const creatShop_edit = async (req, res) => {
         owner: req.userId,
       });
     } else {
-     
-      shop = await Shop.findOneAndUpdate(
-        { owner: req.userId },
-        {
-          name,
-          city,
-          state,
-          address,
-          image: img || shop.image, 
-        },
-        { new: true }
-      );
+      // Update existing shop
+      shop.name = name || shop.name;
+      shop.city = city || shop.city;
+      shop.state = state || shop.state;
+      shop.address = address || shop.address;
+      if (img) shop.image = img;
+      await shop.save();
     }
 
     await shop.populate("owner");
 
-    return res.status(201).json({ message: "Shop saved successfully", shop });
+    // Fetch all shops to return the updated list
+    const shops = await Shop.find({ owner: ownerId }).populate("items");
+
+    return res.status(201).json({ 
+      message: "Shop saved successfully", 
+      shop, 
+      shops 
+    });
   } catch (error) {
     console.error("creatShop_edit error:", error);
     return res.status(500).json({ message: "creatShop_edit error", error: error.message });
@@ -56,22 +68,20 @@ export const creatShop_edit = async (req, res) => {
 
 export const getMyShop = async (req, res) => {
   try {
-    const userId = req.userId; 
-    console.log( "user id  found",userId)
-
-    if (!userId) {
+    if (!req.userId) {
       return res.status(401).json({ message: "Unauthorized: No user ID found" });
     }
+    const userId = new mongoose.Types.ObjectId(req.userId);
+    console.log("user id found", userId);
 
-    const shop = await Shop.findOne({ owner: userId }).populate("owner", "fullName email ").populate("items");
-
-    if (!shop) {
-      return res.status(404).json({ message: "Shop not found" });
-    }
+    const shops = await Shop.find({ owner: userId })
+      .populate("owner", "fullName email")
+      .populate("items");
 
     return res.status(200).json({
-      message: "Shop fetched successfully",
-      shop,
+      message: "Shops fetched successfully",
+      shops,
+      shop: shops[0] || null, // Keep for backward compatibility
     });
   } catch (error) {
     console.error("Error fetching shop:", error);

@@ -14,6 +14,12 @@ import Itemedit from './pages/Itemedit'
 import useGetshopcity from './Hookes/use.getShopcity'
 import CartItem from './pages/cartItem'
 import Chackoutpage from './pages/chackoutpage'
+import Orderplaced from './pages/Orderplaced'
+import Orderpage from './pages/Orderpage'
+import OwnerOrders from './pages/OwnerOrders'
+import SearchPage from './pages/SearchPage'
+import Deliverydashboard from './Components/Deliverydashboard'
+import GestureController from './Components/GestureController'
 
 
 function App() {
@@ -29,6 +35,7 @@ function App() {
  
   return (
     <div>
+      <GestureController />
       <Routes>
         <Route path='/signup' element={!userData ?<Signup/>:<Navigate to={"/"} />} /> 
         <Route path='/signin' element={!userData ?<Signin/>:<Navigate to={"/"} />} />
@@ -43,7 +50,11 @@ function App() {
        <Route path='/cart' element={userData?<CartItem/>:<Navigate to='/signin' />}/>
        
        <Route path='/chackout' element={userData?<Chackoutpage/>:<Navigate to='/signin'/>}/>
-
+       <Route path='/order-placed' element={userData?<Orderplaced/>:<Navigate to='/signin' />}/>
+        <Route path='/order-page' element={userData?<Orderpage/>:<Navigate to='/signin' />}/>
+        <Route path='/search' element={userData ? <SearchPage /> : <Navigate to='/signin' />} />
+        <Route path='/owner-orders' element={userData?.role === 'owner' ? <OwnerOrders /> : <Navigate to='/signin' />} />
+        <Route path='/delivery-dashboard' element={userData?.role === 'delivery Boy' ? <Deliverydashboard /> : <Navigate to='/signin' />} />
       </Routes>
     </div>
   )
